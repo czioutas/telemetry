@@ -1,0 +1,120 @@
+{
+  "title": "Prisma Metrics",
+  "refresh": "5s",
+  "editable": true,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "title": "Prisma Query Performance",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.1 },
+              { "color": "red", "value": 0.5 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Average Duration" },
+            "properties": [{ "id": "unit", "value": "s" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Query Count" },
+            "properties": [{ "id": "unit", "value": "short" }]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Average Duration" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (model, action) (rate(prisma_query_duration_seconds_sum[5m])) / sum by (model, action) (rate(prisma_query_duration_seconds_count[5m]))",
+          "format": "table",
+          "instant": true,
+          "refId": "A",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "Value": "Average Duration",
+                  "model": "Model",
+                  "action": "Action"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (model, action) (increase(prisma_query_duration_seconds_count[5m]))",
+          "format": "table",
+          "instant": true,
+          "refId": "B",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": { "Value": "Query Count" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 2,
+      "title": "Query Duration by Model",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "spanNulls": false
+          },
+          "unit": "s"
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "right"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(prisma_query_duration_seconds_sum[5m]) / rate(prisma_query_duration_seconds_count[5m])",
+          "legendFormat": "{{model}} - {{action}}"
+        }
+      ]
+    }
+  ],
+  "time": { "from": "now-1h", "to": "now" }
+}
