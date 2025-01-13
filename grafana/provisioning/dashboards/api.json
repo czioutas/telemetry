@@ -131,6 +131,240 @@
           "legendFormat": "{{method}} {{route}}"
         }
       ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "title": "Slowest Endpoints (Average Duration)",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "unit": "s",
+          "decimals": 3
+        }
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (method, route) (rate(http_request_duration_seconds_sum[5m])) / (sum by (method, route) (rate(http_request_duration_seconds_count[5m])) > 0) or vector(0))",
+          "format": "table",
+          "instant": true,
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "Value": "Average Duration",
+                  "method": "Method",
+                  "route": "Endpoint"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "title": "Most Time-Consuming Endpoints (Total Time)",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "unit": "s",
+          "decimals": 3
+        }
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (method, route) (rate(http_request_duration_seconds_sum[5m])))",
+          "format": "table",
+          "instant": true,
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "Value": "Total Time",
+                  "method": "Method",
+                  "route": "Endpoint"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "title": "Average Duration & RPM",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "spanNulls": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Average Duration" },
+            "properties": [{ "id": "unit", "value": "s" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "RPM" },
+            "properties": [{ "id": "unit", "value": "rpm" }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_sum[5m])) / sum(rate(http_request_duration_seconds_count[5m]))",
+          "legendFormat": "Average Duration"
+        },
+        {
+          "expr": "sum(rate(http_requests_total[5m])) * 60",
+          "legendFormat": "RPM"
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "title": "Response Codes",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "spanNulls": false,
+            "stacking": { "mode": "normal" }
+          },
+          "unit": "rpm"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{status_code=~\"3..\"}[5m])) * 60",
+          "legendFormat": "3XX"
+        },
+        {
+          "expr": "sum(rate(http_requests_total{status_code=~\"4..\"}[5m])) * 60",
+          "legendFormat": "4XX"
+        },
+        {
+          "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m])) * 60",
+          "legendFormat": "5XX"
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "title": "Endpoint Performance",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "TPM" },
+            "properties": [{ "id": "unit", "value": "rpm" }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": "p.*" },
+            "properties": [{ "id": "unit", "value": "s" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Failure Rate" },
+            "properties": [{ "id": "unit", "value": "percentunit" }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "sum by (method, route) (rate(http_requests_total[5m])) * 60",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "TPM"
+        },
+        {
+          "expr": "histogram_quantile(0.5, sum by (le, method, route) (rate(http_request_duration_seconds_bucket[5m])))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, method, route) (rate(http_request_duration_seconds_bucket[5m])))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "sum by (method, route) (rate(http_requests_total{status_code=~\"[45]..\"}[5m])) / sum by (method, route) (rate(http_requests_total[5m]))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Failure Rate"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "method": "Method",
+              "route": "Endpoint",
+              "Value #A": "TPM",
+              "Value #B": "p50",
+              "Value #C": "p95",
+              "Value #D": "Failure Rate"
+            }
+          }
+        }
+      ]
     }
   ],
   "time": { "from": "now-1h", "to": "now" }

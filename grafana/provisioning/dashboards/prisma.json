@@ -5,10 +5,148 @@
   "panels": [
     {
       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 3,
+      "title": "Slowest Queries (Average Duration)",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "unit": "s",
+          "decimals": 3
+        }
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (model, action) (rate(prisma_query_duration_seconds_sum[5m])) / (sum by (model, action) (rate(prisma_query_duration_seconds_count[5m])) > 0) or vector(0))",
+          "format": "table",
+          "instant": true,
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "Value": "Average Duration",
+                  "model": "Model",
+                  "action": "Action"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 6,
+      "title": "Most Time-Consuming Queries (Total Time)",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "unit": "s",
+          "decimals": 3
+        }
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (model, action) (rate(prisma_query_duration_seconds_sum[5m])))",
+          "format": "table",
+          "instant": true,
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "Value": "Total Time",
+                  "model": "Model",
+                  "action": "Action"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "title": "Transactions Per Minute",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "spanNulls": false
+          },
+          "unit": "rpm"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(prisma_query_duration_seconds_count[5m])) * 60",
+          "legendFormat": "TPM"
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 5,
+      "title": "Query Duration Percentiles",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "spanNulls": false
+          },
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(prisma_query_duration_seconds_bucket[5m])))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.75, sum by (le) (rate(prisma_query_duration_seconds_bucket[5m])))",
+          "legendFormat": "p75"
+        }
+      ]
+    },
+    {
+      "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 16
       },
       "id": 1,
       "title": "Prisma Query Performance",
@@ -45,7 +183,6 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum by (model, action) (rate(prisma_query_duration_seconds_sum[5m])) / sum by (model, action) (rate(prisma_query_duration_seconds_count[5m]))",
           "format": "table",
           "instant": true,
@@ -64,7 +201,6 @@
           ]
         },
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum by (model, action) (increase(prisma_query_duration_seconds_count[5m]))",
           "format": "table",
           "instant": true,
@@ -85,7 +221,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 28
       },
       "id": 2,
       "title": "Query Duration by Model",
