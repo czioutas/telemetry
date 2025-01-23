@@ -431,12 +431,10 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(increase(http_request_duration_seconds_bucket[1w])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(increase(http_request_duration_seconds_bucket[168h])) by (le, week(timestamp)))",
           "format": "table",
           "instant": true,
           "intervalFactor": 1,
-          "legendFormat": "",
-          "refId": "A",
           "step": 300,
           "exemplar": false,
           "range": true,
