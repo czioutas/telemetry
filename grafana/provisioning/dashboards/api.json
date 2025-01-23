@@ -365,6 +365,96 @@
           }
         }
       ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 4,
+      "title": "Overall API p95 Latency - Current vs Last Week",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "spanNulls": false
+          },
+          "unit": "s"
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean"],
+          "displayMode": "table",
+          "placement": "right"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "Current p95"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[5m] offset 1w)))",
+          "legendFormat": "Last Week p95"
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 5,
+      "title": "Weekly p95 Latency Trend",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "unit": "s",
+          "decimals": 2
+        }
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Week" }]
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(increase(http_request_duration_seconds_bucket[1w])) by (le))",
+          "format": "table",
+          "instant": true,
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "refId": "A",
+          "step": 300,
+          "exemplar": false,
+          "range": true,
+          "intervalMs": 604800000,
+          "maxDataPoints": 4,
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "Time": "Week",
+                  "Value": "p95 Latency"
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "time": { "from": "now-1h", "to": "now" }
