@@ -374,7 +374,7 @@
         "y": 24
       },
       "id": 4,
-      "title": "Overall API p95 Latency - Current vs Last Week",
+      "title": "FIXED - Overall API p95 Latency - Current vs Last Week",
       "type": "timeseries",
       "fieldConfig": {
         "defaults": {
@@ -396,11 +396,50 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[5m])))",
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[1w]))))",
           "legendFormat": "Current p95"
         },
         {
-          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[5m] offset 1w)))",
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[1w] offset 1w)))",
+          "legendFormat": "Last Week p95"
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 4,
+      "title": "VARIABLE - Overall API p95 Latency - Current vs Last Week",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "spanNulls": false
+          },
+          "unit": "s"
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean"],
+          "displayMode": "table",
+          "placement": "right"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[$__rate_interval])))",
+          "legendFormat": "Current p95"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[$__rate_interval] offset 1w)))",
           "legendFormat": "Last Week p95"
         }
       ]
@@ -438,25 +477,25 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h])) by (le)) or vector(0)",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1w])) by (le)) or vector(0)",
           "legendFormat": "Current Week",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h] offset 7d)) by (le)) or vector(0)",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1w] offset 7d)) by (le)) or vector(0)",
           "legendFormat": "Last Week",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h] offset 14d)) by (le)) or vector(0)",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1w] offset 14d)) by (le)) or vector(0)",
           "legendFormat": "2 Weeks Ago",
           "format": "table",
           "instant": true
         },
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h] offset 21d)) by (le)) or vector(0)",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1w] offset 21d)) by (le)) or vector(0)",
           "legendFormat": "3 Weeks Ago",
           "format": "table",
           "instant": true
