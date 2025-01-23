@@ -413,7 +413,7 @@
         "y": 32
       },
       "id": 5,
-      "title": "Weekly p95 Latency Trend",
+      "title": "Weekly p95 Latency",
       "type": "table",
       "fieldConfig": {
         "defaults": {
@@ -422,35 +422,57 @@
             "displayMode": "auto"
           },
           "unit": "s",
-          "decimals": 2
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 2 }
+            ]
+          }
         }
       },
       "options": {
-        "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Week" }]
+        "showHeader": true
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(increase(http_request_duration_seconds_bucket[168h])) by (le, week(timestamp)))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h])) by (le)) or vector(0)",
+          "legendFormat": "Current Week",
           "format": "table",
-          "instant": true,
-          "intervalFactor": 1,
-          "step": 300,
-          "exemplar": false,
-          "range": true,
-          "intervalMs": 604800000,
-          "maxDataPoints": 4,
-          "transformations": [
-            {
-              "id": "organize",
-              "options": {
-                "renameByName": {
-                  "Time": "Week",
-                  "Value": "p95 Latency"
-                }
-              }
+          "instant": true
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h] offset 7d)) by (le)) or vector(0)",
+          "legendFormat": "Last Week",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h] offset 14d)) by (le)) or vector(0)",
+          "legendFormat": "2 Weeks Ago",
+          "format": "table",
+          "instant": true
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1h] offset 21d)) by (le)) or vector(0)",
+          "legendFormat": "3 Weeks Ago",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value": "p95 Latency (seconds)"
             }
-          ]
+          }
         }
       ]
     }
