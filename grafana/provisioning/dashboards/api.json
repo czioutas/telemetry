@@ -18,7 +18,7 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 1,
+    "id": 5,
     "links": [],
     "panels": [
         {
@@ -75,8 +75,8 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[1d])) by (le))",
-                    "legendFormat": "Current Week",
+                    "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[1d])) by (le, job))",
+                    "legendFormat": "Current Week {{job}}",
                     "range": true,
                     "refId": "A"
                 },
@@ -86,8 +86,8 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le))",
-                    "legendFormat": "Last Week",
+                    "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le, job))",
+                    "legendFormat": "Last Week {{job}}",
                     "range": true,
                     "refId": "B"
                 }
@@ -148,8 +148,10 @@
                         "type": "prometheus",
                         "uid": "prometheus"
                     },
-                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1d])) by (le))",
-                    "legendFormat": "Current Week",
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1d])) by (le, job))",
+                    "legendFormat": "Current Week {{job}}",
+                    "range": true,
                     "refId": "A"
                 },
                 {
@@ -157,8 +159,10 @@
                         "type": "prometheus",
                         "uid": "prometheus"
                     },
-                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le))",
-                    "legendFormat": "Last Week",
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le, job))",
+                    "legendFormat": "Last Week {{job}}",
+                    "range": true,
                     "refId": "B"
                 }
             ],
@@ -219,8 +223,8 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1d])) by (le))",
-                    "legendFormat": "Current Week",
+                    "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1d])) by (le, job))",
+                    "legendFormat": "Current Week {{job}}",
                     "range": true,
                     "refId": "A"
                 },
@@ -230,8 +234,8 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le))",
-                    "legendFormat": "Last Week",
+                    "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le, job))",
+                    "legendFormat": "Last Week {{job}}",
                     "range": true,
                     "refId": "B"
                 }
@@ -295,7 +299,7 @@
             },
             "gridPos": {
                 "h": 8,
-                "w": 16,
+                "w": 8,
                 "x": 0,
                 "y": 6
             },
@@ -366,7 +370,7 @@
             "gridPos": {
                 "h": 8,
                 "w": 8,
-                "x": 16,
+                "x": 8,
                 "y": 6
             },
             "id": 14,
@@ -401,13 +405,82 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(http_request_duration_seconds_bucket[1d])) by (le)",
+                    "expr": "sum(rate(http_request_duration_seconds_bucket{job=\"cozero\"}[1d])) by (le)",
                     "legendFormat": "le={{le}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Request Rate by Duration Buckets (Aggregated)",
+            "title": "Pool - Request Rate by Duration Buckets (Aggregated)",
+            "type": "piechart"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        }
+                    },
+                    "mappings": [],
+                    "unit": "req/s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 6
+            },
+            "id": 15,
+            "options": {
+                "displayLabels": [
+                    "name",
+                    "value"
+                ],
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(rate(http_request_duration_seconds_bucket{job=\"edelivery\"}[1d])) by (le)",
+                    "legendFormat": "le={{le}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Edelivery - Request Rate by Duration Buckets (Aggregated)",
             "type": "piechart"
         },
         {
@@ -1515,6 +1588,6 @@
     "timezone": "browser",
     "title": "HTTP API Metrics 2.0",
     "uid": "eea6niozv4buoa",
-    "version": 107,
+    "version": 1,
     "weekStart": ""
 }
