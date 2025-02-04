@@ -28,6 +28,121 @@
             },
             "fieldConfig": {
                 "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 46
+            },
+            "id": 30,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "expr": "histogram_quantile(0.5, sum by(le, route) (rate(http_request_duration_seconds_bucket[5m])))",
+                    "legendFormat": "p50 {{route}}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "expr": "histogram_quantile(0.95, sum by(le, route) (rate(http_request_duration_seconds_bucket[5m])))",
+                    "legendFormat": "p95 {{route}}",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "expr": "histogram_quantile(0.99, sum by(le, route) (rate(http_request_duration_seconds_bucket[5m])))",
+                    "legendFormat": "p99 {{route}}",
+                    "refId": "C"
+                }
+            ],
+            "title": "API Latency Distribution",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
                     "decimals": 3,
                     "mappings": [],
                     "thresholds": {
@@ -44,8 +159,8 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
-                "w": 24,
+                "h": 6,
+                "w": 8,
                 "x": 0,
                 "y": 0
             },
@@ -118,12 +233,12 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
-                "w": 24,
-                "x": 0,
-                "y": 8
+                "h": 6,
+                "w": 8,
+                "x": 8,
+                "y": 0
             },
-            "id": 13,
+            "id": 12,
             "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -188,12 +303,12 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
-                "w": 24,
-                "x": 0,
-                "y": 16
+                "h": 6,
+                "w": 8,
+                "x": 16,
+                "y": 0
             },
-            "id": 12,
+            "id": 13,
             "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -218,8 +333,10 @@
                         "type": "prometheus",
                         "uid": "prometheus"
                     },
-                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1d])) by (le))",
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1d])) by (le))",
                     "legendFormat": "Current Week",
+                    "range": true,
                     "refId": "A"
                 },
                 {
@@ -227,12 +344,14 @@
                         "type": "prometheus",
                         "uid": "prometheus"
                     },
-                    "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le))",
+                    "editorMode": "code",
+                    "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1d] offset 1w)) by (le))",
                     "legendFormat": "Last Week",
+                    "range": true,
                     "refId": "B"
                 }
             ],
-            "title": "Weekly p95 Performance",
+            "title": "Weekly p99 Performance",
             "type": "stat"
         },
         {
@@ -290,10 +409,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 13,
-                "w": 24,
+                "h": 8,
+                "w": 16,
                 "x": 0,
-                "y": 24
+                "y": 6
             },
             "id": 11,
             "options": {
@@ -336,6 +455,75 @@
             ],
             "title": "Request Rate by Duration Buckets (Aggregated)",
             "type": "barchart"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        }
+                    },
+                    "mappings": [],
+                    "unit": "req/s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 16,
+                "y": 6
+            },
+            "id": 14,
+            "options": {
+                "displayLabels": [
+                    "name",
+                    "value"
+                ],
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(rate(http_request_duration_seconds_bucket[1d])) by (le)",
+                    "legendFormat": "le={{le}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Request Rate by Duration Buckets (Aggregated)",
+            "type": "piechart"
         },
         {
             "datasource": {
@@ -430,7 +618,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 14
             },
             "id": 2,
             "options": {
@@ -509,7 +697,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 45
+                "y": 22
             },
             "id": 5,
             "options": {
@@ -593,7 +781,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 45
+                "y": 22
             },
             "id": 6,
             "options": {
@@ -656,7 +844,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -710,7 +899,8 @@
                                     "mode": "percentage",
                                     "steps": [
                                         {
-                                            "color": "green"
+                                            "color": "green",
+                                            "value": null
                                         },
                                         {
                                             "color": "red",
@@ -727,7 +917,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 53
+                "y": 30
             },
             "id": 10,
             "options": {
@@ -879,7 +1069,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 61
+                "y": 38
             },
             "id": 3,
             "options": {
@@ -1018,7 +1208,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 69
+                "y": 46
             },
             "id": 7,
             "options": {
@@ -1121,7 +1311,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 69
+                "y": 46
             },
             "id": 8,
             "options": {
@@ -1233,7 +1423,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 77
+                "y": 54
             },
             "id": 4,
             "options": {
@@ -1336,7 +1526,7 @@
                 "h": 12,
                 "w": 24,
                 "x": 0,
-                "y": 85
+                "y": 62
             },
             "id": 9,
             "options": {
@@ -1440,6 +1630,6 @@
     "timezone": "browser",
     "title": "HTTP API Metrics 2.0",
     "uid": "eea6niozv4buoa",
-    "version": 102,
+    "version": 107,
     "weekStart": ""
 }
