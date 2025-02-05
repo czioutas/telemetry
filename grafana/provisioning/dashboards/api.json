@@ -251,29 +251,7 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisGridShow": true,
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "fillOpacity": 80,
-                        "gradientMode": "opacity",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineWidth": 1,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "thresholds": {
@@ -284,16 +262,11 @@
                                 "value": null
                             },
                             {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
                                 "color": "red",
-                                "value": 2
+                                "value": 80
                             }
                         ]
-                    },
-                    "unit": "req/s"
+                    }
                 },
                 "overrides": []
             },
@@ -303,30 +276,23 @@
                 "x": 0,
                 "y": 6
             },
-            "id": 11,
+            "id": 16,
             "options": {
-                "barRadius": 0,
-                "barWidth": 0.97,
-                "fullHighlight": false,
-                "groupWidth": 0.7,
-                "legend": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
                     "calcs": [
-                        "mean"
+                        "lastNotNull"
                     ],
-                    "displayMode": "list",
-                    "placement": "right",
-                    "showLegend": true
+                    "fields": "",
+                    "values": false
                 },
-                "orientation": "vertical",
-                "showValue": "never",
-                "stacking": "normal",
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                },
-                "xField": "Time",
-                "xTickLabelRotation": -60,
-                "xTickLabelSpacing": 100
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
             },
             "pluginVersion": "11.4.0",
             "targets": [
@@ -336,14 +302,162 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "sum(rate(http_request_duration_seconds_bucket[1d] offset 1s)) by (le)",
-                    "legendFormat": "le={{le}}",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"0.1\", job=\"cozero\"}[1d]))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d])) * 100",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "0.1 %",
                     "range": true,
-                    "refId": "A"
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"0.5\", job=\"cozero\"}[1d])) - sum(rate(http_request_duration_seconds_bucket{le=\"0.1\", job=\"cozero\"}[1d]))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d])) * 100",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "0.5s %",
+                    "range": true,
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"1.0\", job=\"cozero\"}[1d])) - sum(rate(http_request_duration_seconds_bucket{le=\"0.5\", job=\"cozero\"}[1d]))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d])) * 100\n\n",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "1s %",
+                    "range": true,
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"2.0\", job=\"cozero\"}[1d])) - sum(rate(http_request_duration_seconds_bucket{le=\"1.0\", job=\"cozero\"}[1d]))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d])) * 100\n",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "2s %",
+                    "range": true,
+                    "refId": "E"
+                },
+                {
+                    "disableTextWrap": false,
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"5.0\", job=\"cozero\"}[1d])) - sum(rate(http_request_duration_seconds_bucket{le=\"2.0\", job=\"cozero\"}[1d]))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d])) * 100",
+                    "fullMetaSearch": false,
+                    "includeNullMetadata": false,
+                    "legendFormat": "5s %",
+                    "range": true,
+                    "refId": "A",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"+Inf\", job=\"cozero\"}[1d])) - sum(rate(http_request_duration_seconds_bucket{le=\"5.0\", job=\"cozero\"}[1d]))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d])) * 100\n\n",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "+inf %",
+                    "range": true,
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"0.1\", job=\"cozero\"}[1d] offset 1w))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d] offset 1w)) * 100",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "0.1 % Last week",
+                    "range": true,
+                    "refId": "B - last week"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"0.5\", job=\"cozero\"}[1d] offset 1w)) - sum(rate(http_request_duration_seconds_bucket{le=\"0.1\", job=\"cozero\"}[1d] offset 1w))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d] offset 1w)) * 100",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "0.5s % last week",
+                    "range": true,
+                    "refId": "C - last week"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"1.0\", job=\"cozero\"}[1d] offset 1w)) - sum(rate(http_request_duration_seconds_bucket{le=\"0.5\", job=\"cozero\"}[1d] offset 1w))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d] offset 1w)) * 100",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "1s % Last week",
+                    "range": true,
+                    "refId": "D - last week"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"2.0\", job=\"cozero\"}[1d] offset 1w)) - sum(rate(http_request_duration_seconds_bucket{le=\"1.0\", job=\"cozero\"}[1d] offset 1w))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d] offset 1w)) * 100",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "2s % - Last week",
+                    "range": true,
+                    "refId": "E - last week"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"5.0\", job=\"cozero\"}[1d] offset 1w)) - sum(rate(http_request_duration_seconds_bucket{le=\"2.0\", job=\"cozero\"}[1d] offset 1w))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d] offset 1w)) * 100",
+                    "fullMetaSearch": false,
+                    "hide": false,
+                    "includeNullMetadata": false,
+                    "legendFormat": "5s % - Last week",
+                    "range": true,
+                    "refId": "A - last week",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "(sum(rate(http_request_duration_seconds_bucket{le=\"+Inf\", job=\"cozero\"}[1d] offset 1w)) - sum(rate(http_request_duration_seconds_bucket{le=\"5.0\", job=\"cozero\"}[1d] offset 1w))) / sum(rate(http_request_duration_seconds_count{job=\"cozero\"}[1d] offset 1w)) * 100",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "+inf %  - Last week",
+                    "range": true,
+                    "refId": "F - last week"
                 }
             ],
-            "title": "Request Rate by Duration Buckets (Aggregated)",
-            "type": "barchart"
+            "title": "Panel Title",
+            "type": "stat"
         },
         {
             "datasource": {
@@ -1011,7 +1125,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -1126,7 +1241,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -1253,7 +1369,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -1588,6 +1705,6 @@
     "timezone": "browser",
     "title": "HTTP API Metrics 2.0",
     "uid": "eea6niozv4buoa",
-    "version": 1,
+    "version": 2,
     "weekStart": ""
 }
